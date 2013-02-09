@@ -4,6 +4,7 @@
 
 *.pydevproject
 #.project
+#.settings/
 .metadata
 bin/
 tmp/
@@ -15,7 +16,6 @@ Release/
 *~.nib
 local.properties
 .classpath
-#.settings/
 .loadpath
 
 # External tool builders
