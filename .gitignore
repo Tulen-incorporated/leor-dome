@@ -30,6 +30,10 @@ local.properties
 # PDT-specific
 .buildpath
 
+#################
+## QT Creator
+#################
+*.pro.user
 
 #################
 ## Visual Studio
