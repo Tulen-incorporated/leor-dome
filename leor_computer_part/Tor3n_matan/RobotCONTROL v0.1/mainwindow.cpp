@@ -10,12 +10,41 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-a=110; //основание вн
-b=110; //основание пл
-c=110; //локоть вн
-d=110; //кисть вн
-e=110; //кисть лп
-f=110; //зохават
+
+    // Фиксируем высоту окошка.
+    this->setFixedHeight(this->height());
+
+    int i;
+
+    // инициализируем все углы на 110 градусов.
+    for (i = 0; i < ANGLES_COUNT; i++){
+        angles[i] = 110;
+    }
+
+    // Инициализируем уставочные дельты
+    // Это углы, на которые надо изменять текущие углы
+    // по тику таймера.
+
+    // Сейчас сделаем все дельты на единичку, впоследствии, если понадобиться
+    // мы можем сделать их разными для каждого сегмента,
+    // если захочется вращать его быстрее или медленнее.
+    for (i = 0; i < ANGLES_COUNT; i++)
+    {
+        absoluteDeltas[i] = 1;
+    }
+
+    // Инициализируем текущие дельты, это значения, на которые БУДУТ изменятся
+    // наши углы по тику таймера. Поскольку кнопок тут еще никто не нажимает, зануляем их.
+    for (i = 0; i < ANGLES_COUNT; i++)
+    {
+        actualDeltas[i] = 0;
+    }
+
+    // Теперь настраиваем таймер.
+    timer.setInterval(100); //100 милисекунд на переполнение.
+    timer.setSingleShot(false); // выключаем остановку после первого переполнения.
+    // А теперь соединяем сигнал переполнения с нашим слотом.
+    connect(&timer, SIGNAL(timeout()), this, SLOT(timerSlot()));
 }
 
 MainWindow::~MainWindow()
@@ -23,103 +52,75 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-
-
-QString str;
-
-str = QString::number(a, 10);
-ui->label_7->setText(str);
-str = QString::number(b, 10);
-ui->label_8->setText(str);
-str = QString::number(c, 10);
-ui->label_9->setText(str);
-str = QString::number(d, 10);
-ui->label_10->setText(str);
-str = QString::number(e, 10);
-ui->label_11->setText(str);
-str = QString::number(f, 10);
-ui->label_12->setText(str);
-
-
     switch (event->key())
     {
     case Qt::Key_W:
-    a=a+1;
-    str = QString::number(a, 10);
-    ui->label_7->setText(str);
-    break;
+        actualDeltas[0] = absoluteDeltas[0];
+        break;
 
     case Qt::Key_S:
-    a=a-1;
-    str = QString::number(a, 10);
-    ui->label_7->setText(str);
-    break;
+        actualDeltas[0] = -absoluteDeltas[0];
+        break;
 //......................................... верх низ основание
 
     case Qt::Key_A:
-    b=b+1;
-    str = QString::number(b, 10);
-    ui->label_8->setText(str);
-    break;
+        actualDeltas[1] = absoluteDeltas[1];
+        break;
 
     case Qt::Key_D:
-    b=b-1;
-    str = QString::number(b, 10);
-    ui->label_8->setText(str);
-    break;
+        actualDeltas[1] = -absoluteDeltas[1];
+        break;
 //......................................... право лево основание
     case Qt::Key_Up:
-    c=c+1;
-    str = QString::number(c, 10);
-    ui->label_9->setText(str);
-    break;
+        actualDeltas[2] = absoluteDeltas[2];
+        break;
 
     case Qt::Key_Down:
-    c=c-1;
-    str = QString::number(c, 10);
-    ui->label_9->setText(str);
-    break;
+        actualDeltas[2] = -absoluteDeltas[2];
+        break;
 //......................................... верх низ локоть
     case Qt::Key_PageUp:
-    d=d+1;
-    str = QString::number(d, 10);
-    ui->label_10->setText(str);
-    break;
+        actualDeltas[3] = absoluteDeltas[3];
+        break;
 
     case Qt::Key_PageDown:
-    d=d-1;
-    str = QString::number(d, 10);
-    ui->label_10->setText(str);
-    break;
+        actualDeltas[3] = -absoluteDeltas[3];
+        break;
 //......................................... кисть верх низ
     case Qt::Key_Left:
-    e=e+1;
-    str = QString::number(e, 10);
-    ui->label_11->setText(str);
-    break;
+        actualDeltas[4] = absoluteDeltas[4];
+        break;
 
     case Qt::Key_Right:
-    e=e-1;
-    str = QString::number(e, 10);
-    ui->label_11->setText(str);
-    break;
+        actualDeltas[4] = -absoluteDeltas[4];
+        break;
 //......................................... кисть левоправо
     case Qt::Key_Space:
-    f=f+1;
-    str = QString::number(f, 10);
-    ui->label_12->setText(str);
-    break;
+        actualDeltas[5] = absoluteDeltas[5];
+        break;
 
     case Qt::Key_X:
-    f=f-1;
-    str = QString::number(f, 10);
-    ui->label_12->setText(str);
-    break;
+        actualDeltas[5] = -absoluteDeltas[5];
+        break;
 //......................................... захват +-
-     }
+     } //switch
 
+    // Теперь обновялем лейблы.
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *)
+{
+}
+
+// Слот для таймера, тут все просто. Как только таймер переполняется, меняем углы на текущие дельты.
+void MainWindow::timerSlot()
+{
+    // TODO тут надо сделать что-то, чтобы углы не уходили за пределы, типо 200 градусов, или -10
+    int i;
+    for (i = 0; i < ANGLES_COUNT; i++)
+    {
+        angles[i] += actualDeltas[i];
+    }
 }

@@ -1,10 +1,15 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+
 #include <QMainWindow>
 #include <QWidget>
 #include <QLineEdit>
 #include <QStringList>
 #include <QKeyEvent>
+#include <QTimer>
+
+// Количество углов, с которыми работаем.
+#define ANGLES_COUNT 8
 
 namespace Ui {
 class MainWindow;
@@ -17,18 +22,29 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    int a;
-    int b;
-    int c;
-    int d;
-    int e;
-    int f;
 
+protected:
     void keyPressEvent(QKeyEvent *);
+    void keyReleaseEvent(QKeyEvent *);
     
 private:
     Ui::MainWindow *ui;
 
+    // Хранимые углы.
+    int angles[ANGLES_COUNT];
+
+    // Дельты углов по таймеру.
+    int actualDeltas[ANGLES_COUNT];
+
+    // Уставки дельт по таймеру.
+    int absoluteDeltas[ANGLES_COUNT];
+
+    // Таймер, который будет менять углы.
+    QTimer timer;
+
+private slots:
+    // Слот для таймера.
+    void timerSlot();
 
 };
 
