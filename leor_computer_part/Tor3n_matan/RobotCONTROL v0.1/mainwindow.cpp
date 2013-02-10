@@ -4,6 +4,7 @@
 #include "windows.h"
 #include "iostream"
 #include <QObject>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Фиксируем высоту окошка.
     this->setFixedHeight(this->height());
+
+    // Хочу клавиатуру, всю.
+    this->grabKeyboard();
 
     int i;
 
@@ -45,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer.setSingleShot(false); // выключаем остановку после первого переполнения.
     // А теперь соединяем сигнал переполнения с нашим слотом.
     connect(&timer, SIGNAL(timeout()), this, SLOT(timerSlot()));
+    timer.start(); // погнале!
 }
 
 MainWindow::~MainWindow()
@@ -157,6 +162,13 @@ void MainWindow::timerSlot()
     {
         angles[i] += actualDeltas[i];
     }
+    ui->label_7->setText(QString::number(angles[0]));
+    ui->label_8->setText(QString::number(angles[1]));
+    ui->label_9->setText(QString::number(angles[2]));
+    ui->label_10->setText(QString::number(angles[3]));
+    ui->label_11->setText(QString::number(angles[4]));
+    ui->label_12->setText(QString::number(angles[5]));
 
+    //qDebug() << angles[0] << angles[1] << angles[2] << angles[3] << angles[4] << angles[5];
     //TODO я забыл обновить лейблы (
 }
