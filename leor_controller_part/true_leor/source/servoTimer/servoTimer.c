@@ -48,11 +48,11 @@ void timer0_A0()
   //Если мы попали сюда - таймер переполнился.
   switch (TA0IV) {
     case TA0IV_TAIFG:
-      P1OUT ^= BIT0;
+      //P1OUT ^= BIT6;
       break;
 
     case TA0IV_TACCR1:
-      P1OUT ^= BIT6;
+      P1OUT ^= BIT0;
       break;
 
     default:
@@ -68,11 +68,11 @@ void timer0_A1()
 {
   switch (TA0IV) {
     case TA0IV_TAIFG:
-      P1OUT ^= BIT0;
+      P1OUT ^= BIT6;
       break;
 
     case TA0IV_TACCR1:
-      P1OUT ^= BIT6;
+      P1OUT ^= BIT0;
       break;
 
     default:

@@ -5,7 +5,7 @@
  *      Author: Administrator
  */
 
-#include <msp430.h>
+#include <msp430g2553.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -57,9 +57,8 @@ void UARTstopListen()
   IE2 &= ~UCA0RXIE;
 }
 
-#pragma INTERRUPT (uartRxInterrupt);
 #pragma vector = USCIAB0RX_VECTOR
-void uartRxInterrupt()
+__interrupt void uartRxInterrupt()
 {
   /*
   // Включаем вложенные прерыания, для таймера, он приоритетнее

@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <msp430.h>
+#include <msp430g2553.h>
 
 #include "servoTimer.h"
 
@@ -41,9 +41,8 @@ void initServosOnTimerA0SMCLK4mHz()
 }
 
 // Прерывание по TA0CCR0 CCIFG
-#pragma INTERRUPT (timer0_A0);
 #pragma vector = TIMER0_A0_VECTOR
-void timer0_A0()
+__interrupt void timer0_A0()
 {
   //Если мы попали сюда - таймер переполнился.
   switch (TA0IV) {
@@ -62,9 +61,8 @@ void timer0_A0()
 }
 
 // Прерывание по TA0CCR2 TA0CCR1 CCIFG, TAIFG
-#pragma INTERRUPT (timer0_A1);
 #pragma vector = TIMER0_A1_VECTOR
-void timer0_A1()
+__interrupt void timer0_A1()
 {
   switch (TA0IV) {
     case TA0IV_TAIFG:
