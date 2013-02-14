@@ -5,7 +5,7 @@
  *      Author: Administrator
  */
 
-#include <msp430.h>
+#include <msp430g2553.h>
 
 // Если мы попали в какой-то из этих интерруптов, что-то не так, зажгем лампочку! KERNEL PANIC!
 #pragma INTERRUPT (dummyPlug);

@@ -2,7 +2,7 @@
  * main.c
  */
 
-#include <msp430.h>
+#include <msp430g2553.h>
 #include "servoTimer/servoTimer.h"
 
 #pragma FUNC_NEVER_RETURNS (main);

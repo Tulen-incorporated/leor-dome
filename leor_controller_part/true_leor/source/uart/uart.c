@@ -5,7 +5,7 @@
  *      Author: Administrator
  */
 
-#include <msp430.h>
+#include <msp430g2553.h>
 #include <stdint.h>
 #include <stdbool.h>
 
