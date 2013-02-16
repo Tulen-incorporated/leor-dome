@@ -5,12 +5,28 @@
 #include <windows.h>
 #endif
 
+#include <boost/bind.hpp>
+#include <boost/asio/placeholders.hpp>
+#include <boost/asio.hpp>
+#include <boost/system/error_code.hpp>
+
 #include <QDebug>
 #include <iostream>
 #include <vector>
 
-LeorSerial::LeorSerial(): myPort(io)
+LeorSerial::LeorSerial():
+    myPort(io),
+    myWork(io),
+    pollThread(boost::bind(&ba::io_service::run, &io)),
+    writeBuffer(sizeof(LeorMessage)),
+    readBuffer(sizeof(char))
 {
+}
+
+LeorSerial::~LeorSerial()
+{
+    myPort.close();
+    pollThread.join();
 }
 
 void LeorSerial::open(QString &portName)
@@ -22,11 +38,35 @@ void LeorSerial::open(QString &portName)
     myPort.set_option(ba::serial_port::flow_control(ba::serial_port::flow_control::none));
     myPort.set_option(ba::serial_port::stop_bits(ba::serial_port::stop_bits::one));
     myPort.set_option(ba::serial_port::character_size(8));
+
+    ba::async_read(myPort,
+        ba::buffer(readBuffer.data(), readBuffer.size()),
+        boost::bind(&LeorSerial::readCallback, this,
+            ba::placeholders::error, ba::placeholders::bytes_transferred)
+        );
 }
 
 void LeorSerial::close()
 {
     myPort.close();
+}
+
+void LeorSerial::writeCallback(const boost::system::error_code &e, std::size_t sizeTransfered)
+{
+}
+
+void LeorSerial::readCallback(const boost::system::error_code &e, std::size_t sizeTransfered)
+{
+    if (!e && sizeTransfered == 1 && readBuffer.data()[0] == READY_BYTE){
+        writeBufferMutex.lock();
+        ba::async_write(
+            myPort,
+            ba::buffer(writeBuffer.data(), writeBuffer.size()),
+            boost::bind(&LeorSerial::writeCallback, this,
+                ba::placeholders::error, ba::placeholders::bytes_transferred)
+            );
+
+    }
 }
 
 #ifdef WIN32

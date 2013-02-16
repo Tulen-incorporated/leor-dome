@@ -2,36 +2,55 @@
 #define SERIALPORT_H
 
 #include <boost/asio/serial_port.hpp>
-#include <QString>
-#include <QObject>
-#include <QStringList>
+#include <boost/noncopyable.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
+#include <vector>
 #include <stdint.h>
+
+#include <QString>
+#include <QStringList>
+
+
+#include "leorMessage.h"
 
 namespace ba = boost::asio;
 
-/* Формат сообщений сериал порта для леора
+/* Настройки сериал порта для леора.
   baudRate 9600
   Parity odd
   stopbits 1
-  characterLenght 8
+  characterLength 8
   */
-class LeorSerial: public QObject
+class LeorSerial: public boost::noncopyable
 {
-    Q_OBJECT
-private:
-    // Блочим копирование.
-    LeorSerial(const LeorSerial & other);
-    LeorSerial & operator=(const LeorSerial & other);
-
 public:
     LeorSerial();
+    ~LeorSerial();
     void open(QString & portName);
     void close();
 
+    /*! Посылает на леора сообщение о смене углов.
+        Если какое-то сообщение уже стоит в ожидании готовности леора,
+        на момент вызова функции, оно заменяется на новое.
+      */
+    void updateNextMessage(const LeorMessage & message);
     static QStringList getPortsList();
 private:
     ba::io_service io;
     ba::serial_port myPort;
+    ba::io_service::work myWork;
+    boost::thread pollThread;
+
+    boost::mutex writeBufferMutex;
+
+    void writeCallback(const boost::system::error_code & e, std::size_t sizeTransfered);
+    void readCallback(const boost::system::error_code & e, std::size_t sizeTransfered);
+
+    std::vector<char> writeBuffer;
+    std::vector<char> readBuffer;
+
 
 private slots:
 
