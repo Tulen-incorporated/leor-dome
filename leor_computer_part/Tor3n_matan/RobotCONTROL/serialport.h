@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <memory>
 
 #include <QString>
 #include <QStringList>
@@ -40,7 +41,7 @@ public:
 private:
     ba::io_service io;
     ba::serial_port myPort;
-    ba::io_service::work myWork;
+    std::auto_ptr<ba::io_service::work> myWorkPtr;
     boost::thread pollThread;
 
     boost::mutex writeBufferMutex;

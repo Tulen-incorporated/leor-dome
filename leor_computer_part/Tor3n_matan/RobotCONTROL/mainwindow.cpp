@@ -177,4 +177,5 @@ void MainWindow::on_connectButton_clicked()
 void MainWindow::on_disconnectButton_clicked()
 {
     this->releaseKeyboard();
+    port.close();
 }

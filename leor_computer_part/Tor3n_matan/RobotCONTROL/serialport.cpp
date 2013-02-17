@@ -16,7 +16,7 @@
 
 LeorSerial::LeorSerial():
     myPort(io),
-    myWork(io),
+    myWorkPtr(new ba::io_service::work(io)),
     pollThread(boost::bind(&ba::io_service::run, &io)),
     writeBuffer(sizeof(LeorMessage)),
     readBuffer(sizeof(char))
@@ -25,8 +25,9 @@ LeorSerial::LeorSerial():
 
 LeorSerial::~LeorSerial()
 {
-    myPort.close();
+    myWorkPtr.release();
     pollThread.join();
+    myPort.close();
 }
 
 void LeorSerial::open(QString &portName)
@@ -48,11 +49,21 @@ void LeorSerial::open(QString &portName)
 
 void LeorSerial::close()
 {
+    // стремное место, а что если идет отправка?
+    // в треде бросится исключение скорее всего и он умрет :\
     myPort.close();
+}
+
+void LeorSerial::updateNextMessage(const LeorMessage &message)
+{
+    writeBufferMutex.lock();
+    memcpy(writeBuffer.data(), &message, sizeof(message));
+    writeBufferMutex.unlock();
 }
 
 void LeorSerial::writeCallback(const boost::system::error_code &e, std::size_t sizeTransfered)
 {
+    writeBufferMutex.unlock();
 }
 
 void LeorSerial::readCallback(const boost::system::error_code &e, std::size_t sizeTransfered)
