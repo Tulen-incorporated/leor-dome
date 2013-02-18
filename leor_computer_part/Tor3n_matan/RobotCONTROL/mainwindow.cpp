@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include "leorexception.h"
 #include <QObject>
 #include <QDebug>
 
@@ -9,13 +11,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->portNameBox->addItems(LeorSerial::getPortsList());
+    ui->disconnectButton->setEnabled(false);
+
     // Фиксируем высоту окошка.
     this->setFixedHeight(this->height());
 
     int i;
 
     // инициализируем все углы на 110 градусов.
-    for (i = 0; i < ANGLES_COUNT; i++){
+    for (i = 0; i < SERVO_COUNT; i++){
         angles[i] = 110;
     }
 
@@ -26,14 +31,14 @@ MainWindow::MainWindow(QWidget *parent) :
     // Сейчас сделаем все дельты на единичку, впоследствии, если понадобиться
     // мы можем сделать их разными для каждого сегмента,
     // если захочется вращать его быстрее или медленнее.
-    for (i = 0; i < ANGLES_COUNT; i++)
+    for (i = 0; i < SERVO_COUNT; i++)
     {
         absoluteDeltas[i] = 1;
     }
 
     // Инициализируем текущие дельты, это значения, на которые БУДУТ изменятся
     // наши углы по тику таймера. Поскольку кнопок тут еще никто не нажимает, зануляем их.
-    for (i = 0; i < ANGLES_COUNT; i++)
+    for (i = 0; i < SERVO_COUNT; i++)
     {
         actualDeltas[i] = 0;
     }
@@ -152,7 +157,7 @@ void MainWindow::timerSlot()
 {
     // TODO тут надо сделать что-то, чтобы углы не уходили за пределы, типо 200 градусов, или -10
     int i;
-    for (i = 0; i < ANGLES_COUNT; i++)
+    for (i = 0; i < SERVO_COUNT; i++)
     {
         angles[i] += actualDeltas[i];
     }
@@ -169,13 +174,56 @@ void MainWindow::timerSlot()
 
 void MainWindow::on_connectButton_clicked()
 {
-    this->grabKeyboard();
-    QString portName = ui->portNameBox->itemText(0);
-    port.open(portName);
+    try{
+        QString portName = ui->portNameBox->itemText(0);
+        port.open(portName);
+        this->grabKeyboard();
+        ui->connectButton->setEnabled(false);
+        ui->disconnectButton->setEnabled(true);
+        ui->scanPortsButton->setEnabled(false);
+    }
+    catch (std::exception & e)
+    {
+        addLogMessage(QString(e.what()));
+    }
 }
 
 void MainWindow::on_disconnectButton_clicked()
 {
-    this->releaseKeyboard();
-    port.close();
+    try
+    {
+        port.close();
+        this->releaseKeyboard();
+        ui->disconnectButton->setEnabled(false);
+        ui->connectButton->setEnabled(true);
+        ui->scanPortsButton->setEnabled(true);
+    }
+    catch (std::exception & e)
+    {
+        addLogMessage(QString(e.what()));
+    }
+}
+
+void MainWindow::on_scanPortsButton_clicked()
+{
+    try
+    {
+        ui->portNameBox->clear();
+        ui->portNameBox->addItems(LeorSerial::getPortsList());
+    }
+    catch (std::exception & e)
+    {
+        addLogMessage(QString(e.what()));
+    }
+}
+
+void MainWindow::addLogMessage(const QString & message)
+{
+    QString logBuff = ui->logWidget->document()->toPlainText();
+    logBuff += (message + '\n');
+    while (logBuff.count(QChar('\n')) > MAX_LOG_LINES)
+    {
+        logBuff.remove(0, logBuff.indexOf('\n')+1);
+    }
+    ui->logWidget->document()->setPlainText(logBuff);
 }

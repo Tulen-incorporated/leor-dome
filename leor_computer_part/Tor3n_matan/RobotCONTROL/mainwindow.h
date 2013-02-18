@@ -9,9 +9,11 @@
 #include <QTimer>
 
 #include "serialport.h"
+#include "leorMessage.h"
 
 // Количество углов, с которыми работаем.
-#define ANGLES_COUNT 8
+
+#define MAX_LOG_LINES 20
 
 namespace Ui {
 class MainWindow;
@@ -33,13 +35,13 @@ private:
     Ui::MainWindow *ui;
 
     // Хранимые углы.
-    int angles[ANGLES_COUNT];
+    int angles[SERVO_COUNT];
 
     // Дельты углов по таймеру.
-    int actualDeltas[ANGLES_COUNT];
+    int actualDeltas[SERVO_COUNT];
 
     // Уставки дельт по таймеру.
-    int absoluteDeltas[ANGLES_COUNT];
+    int absoluteDeltas[SERVO_COUNT];
 
     // Таймер, который будет менять углы.
     QTimer timer;
@@ -51,6 +53,8 @@ private slots:
 
     void on_connectButton_clicked();
     void on_disconnectButton_clicked();
+    void on_scanPortsButton_clicked();
+    void addLogMessage(const QString & message);
 };
 
 

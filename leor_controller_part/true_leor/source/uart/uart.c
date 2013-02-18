@@ -10,10 +10,6 @@
 #include <stdbool.h>
 
 #include "uart.h"
-#include "../sharedData.h"
-
-#define BEGIN_MARKER 0xFF
-#define READY_BYTE ('r');
 
 inline void UARTinit9600on4mhzSMCLK()
 {
@@ -42,19 +38,6 @@ inline void UARTinit9600on4mhzSMCLK()
 
   // снимаем резет, мы готовы к работе, но не работаем, пока не вызовут initListen;
   UCA0CTL1 &= ~UCSWRST;
-}
-
-void UARTinitListen()
-{
-  IFG2 &= ~UCA0RXIFG; // Чистим флаг прерывания, чтобы не уйти в него по поводу того, что могло прийти пока мы спали.
-  IE2 |= UCA0RXIE; // Включаем прерывания по RX.
-  UCA0TXBUF = READY_BYTE; // Шлем на комп, что мы готовы.
-}
-
-void UARTstopListen()
-{
-  // Запрещаем прерывания по RX, глушим уарт, иными словами.
-  IE2 &= ~UCA0RXIE;
 }
 
 #pragma INTERRUPT (uartRxInterrupt);
