@@ -7,6 +7,16 @@
 
 #include <msp430g2553.h>
 
+// ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА ПАНИКА
+void panic()
+{
+  for (;;)
+  {
+    //PANIC
+  }
+
+}
+
 // Если мы попали в какой-то из этих интерруптов, что-то не так, зажгем лампочку! KERNEL PANIC!
 #pragma INTERRUPT (dummyPlug);
 #pragma vector = ADC10_VECTOR, TIMER1_A0_VECTOR, TIMER1_A1_VECTOR, COMPARATORA_VECTOR, \
@@ -17,5 +27,5 @@ void dummyPlug()
   P1DIR |= BIT0;
   P1OUT |= BIT0;
 
-  while(1){}
+  panic();
 }

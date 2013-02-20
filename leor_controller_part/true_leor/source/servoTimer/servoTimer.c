@@ -23,8 +23,8 @@
 //! Значения, которые установятся на сервах, пока ничего не пришло с компа.
 #define DEFAULT_SERVO_TICK (uint16_t)(SERVO_MIN_TICK + SERVO_MAX_TICK)/2
 
-//! Индекс каретки, которая идет по массиву сортированных серв.
-uint_fast8_t carretIndex;
+//! Указатель на следующую серву.
+const ServoListEntry ** carretPtr;
 
 //! Инициализация структуры сервомашинки s, на время tick в мс, выдача будет идти в регистр portReg по маске &= portMask
 static inline void initServo(ServoListEntry * s, const uint16_t tick, volatile uint8_t * portReg, const uint8_t portMask)
@@ -55,7 +55,7 @@ void initServosOnTimerA0SMCLK4mHz()
   sortServoSortedList();
 
   // Каретку на ноль
-  carretIndex = 0;
+  carretPtr = sortedServoList;
 
   // ========================================
   // инициализация таймера A0.
@@ -90,7 +90,7 @@ void timer0_A0()
   TACCR1 = sortedServoList[0]->servoTick;
 
   // И сбросить каретку.
-  carretIndex = 0;
+  carretPtr = sortedServoList;
 }
 
 // Прерывание по TA0CCR2 TA0CCR1 CCIFG, TAIFG
@@ -102,21 +102,21 @@ void timer0_A1()
 
   do {
     // Идем по каретке.
-    *(sortedServoList[carretIndex]->portReg) &= sortedServoList[carretIndex]->portMask;
+    *((*carretPtr)->portReg) &= (*carretPtr)->portMask;
 
     // Каретку дальше
-    carretIndex++;
+    carretPtr++;
 
     // Если каретка уехала за границу
-    if (carretIndex >= SERVO_COUNT)
+    if ((carretPtr - sortedServoList) >= SERVO_COUNT)
     {
       return; // Уходим из прерывания.
     }
-  } while (sortedServoList[carretIndex]->servoTick <= TA0R+1);
+  } while ((*carretPtr)->servoTick <= TA0R+1);
 
   // Если Каретка не уехала за границу
   // Ставим время следующего срабатывания для следуюущей сервы.
-  TACCR0 = sortedServoList[carretIndex]->servoTick;
+  TACCR0 = (*carretPtr)->servoTick;
 }
 
 

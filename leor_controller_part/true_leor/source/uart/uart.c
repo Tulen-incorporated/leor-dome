@@ -38,6 +38,15 @@ inline void UARTinit9600on4mhzSMCLK()
 
   // снимаем резет, мы готовы к работе, но не работаем, пока не вызовут initListen;
   UCA0CTL1 &= ~UCSWRST;
+
+  // Снимаем флаги прерываний, т.к. снятие резета устанавливает TXIFG
+  // Ну и на всякий случай.ы
+  IFG2 &= ~(UCA0TXIFG | UCA0RXIFG);
+
+  // Разрешаем прерывания по RX
+  IE2 &= UCA0RXIE;
+
+
 }
 
 #pragma INTERRUPT (uartRxInterrupt);
