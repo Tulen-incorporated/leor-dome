@@ -3,33 +3,19 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
-#define SERVO_COUNT 8
-#define SERVO_MIN_TICK ((uint16_t)800) //ms
-#define SERVO_MAX_TICK ((uint16_t)2300) //ms
-
-#define READY_BYTE ('r')
-#define START_MARKER_BYTE (0xFF)
-
-#ifndef __MSP430__
-#pragma pack(push, 1)
-#endif
+#include <float.h>
 
 typedef struct
 {
-  uint16_t servosTimes[SERVO_COUNT];
+  float servoAngles[SERVO_COUNT];
 } LeorMessageData;
 
 typedef struct
 {
-    uint8_t startMarker;
-    LeorMessageData messageData;
-    uint8_t checkSumm;
+  uint8_t startMarker[3];
+  LeorMessageData messageData;
+  uint8_t checkSumm;
 } LeorMessage;
-
-#ifndef __MSP430__
-#pragma pack(pop)
-#endif
 
 inline uint8_t chkSummAlg(const LeorMessageData * message)
 {
@@ -51,8 +37,9 @@ inline uint8_t chkSummAlg(const LeorMessageData * message)
 
 inline bool isMessageCorrect(const LeorMessage * message)
 {
-    return (message->checkSumm == chkSummAlg(&message->messageData)) &&
-           (message->startMarker == START_MARKER_BYTE);
+    /*return (message->checkSumm == chkSummAlg(&message->messageData)) &&
+           (message->startMarker == START_MARKER_BYTE);*/
+  return false;
 }
 
 #endif // LEORMESSAGE_H

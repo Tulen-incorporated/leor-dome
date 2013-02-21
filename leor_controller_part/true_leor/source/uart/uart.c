@@ -10,6 +10,8 @@
 #include <stdbool.h>
 
 #include "uart.h"
+#include "../containers/uartBuffer.h"
+#include "../tasks/tasks.h"
 
 inline void UARTinit9600on4mhzSMCLK()
 {
@@ -45,42 +47,22 @@ inline void UARTinit9600on4mhzSMCLK()
 
   // Разрешаем прерывания по RX
   IE2 &= UCA0RXIE;
-
-
 }
 
 #pragma INTERRUPT (uartRxInterrupt);
 #pragma vector = USCIAB0RX_VECTOR
 void uartRxInterrupt()
 {
-  /*
+  // IE2 &= ~UCA0RXIFG; Происходит автоматически, когда читаешь из RXBUF
+  register bufferValueType tmp = UCA0RXBUF;
+  cycledBufferPushBack(&rxBuffer, tmp);
+
   // Включаем вложенные прерыания, для таймера, он приоритетнее
-  __enable_interrupt();
+  __bis_SR_register(GIE);
 
-  //IE2 &= ~UCA0RXIFG; Происходит автоматически, когда читаешь из RXBUF
-  register uint8_t buff = UCA0RXBUF;
-
-  // Если это не первый байт, которого мы ждем
-  if (!bufferIndex && buff != BEGIN_MARKER)
-  {
-    return; // Забиваем на этот байт, ждем маркера начала.
-  }
-
-  // Если у нас уже есть набор углов на этом такте, нам больше ничего не нужно.
-  if (bufferIndex >= MESSAGE_LENGTH)
-  {
-    return; // Забиваем на этот байт, он нам не нужен.
-  }
-
-  // Пишем в буффер.
-  buffer[bufferIndex] = buff;
-  bufferIndex++;
-
-  // Если мы добрали сообщение нужной длинны именно этим байтом (а не предидущим, что проверяется условием выше)
-  if (bufferIndex == MESSAGE_LENGTH)
-  {
-    newAnglesAvailible = true; // Выставляем флаг доступности новых данных.
-  }
-  */
+  // Ставим флаг того, что нужно сделать.
+  taskRegister |= TASK_NEW_BYTE_ON_UART;
+  // Будим контроллер по выходу из прерывания, для него появилась работа!
+  __bis_SR_register_on_exit(GIE);
 }
 

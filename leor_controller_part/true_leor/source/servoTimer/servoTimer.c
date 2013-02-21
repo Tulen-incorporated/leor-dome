@@ -11,9 +11,7 @@
 #include <stdbool.h>
 
 #include <msp430g2553.h>
-
-#include "../leorMessage.h"
-#include "servoList.h"
+#include "../containers/servoList.h"
 
 #define P1_SERVO_PINS (BIT4 | BIT5) // Пины сервомашинок на первом порту
 #define P2_SERVO_PINS (BIT0 | BIT1 | BIT2 | BIT3 | BIT4 | BIT5) // Пины сервомашинок на втором порту
@@ -99,7 +97,6 @@ void timer0_A0()
 void timer0_A1()
 {
   // Сюда мы приходим только, когда нам нужно выключить очередную сервомашинку. ЛЕТС ДУ ЗЫС.
-
   do {
     // Идем по каретке.
     *((*carretPtr)->portReg) &= (*carretPtr)->portMask;

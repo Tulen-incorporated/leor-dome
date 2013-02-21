@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "../leorMessage.h"
+#include "../messages/leorMessage.h"
 
 typedef struct ServoListEntry ServoListEntry;
 struct ServoListEntry{
