@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#include "../messages/leorMessage.h"
+#define SERVO_COUNT 8
 
 typedef struct ServoListEntry ServoListEntry;
 struct ServoListEntry{

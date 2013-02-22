@@ -5,9 +5,11 @@
 #include <stdbool.h>
 #include <float.h>
 
+#define MESSAGE_SERVO_COUNT 7
+
 typedef struct
 {
-  float servoAngles[SERVO_COUNT];
+  float servoAngles[MESSAGE_SERVO_COUNT];
 } LeorMessageData;
 
 typedef struct

@@ -8,7 +8,6 @@
 #ifndef SERVOTIMER_H_
 #define SERVOTIMER_H_
 
-#define SERVO_COUNT 8
 #define SERVO_MIN_TICK 800
 #define SERVO_MAX_TICK 2300
 

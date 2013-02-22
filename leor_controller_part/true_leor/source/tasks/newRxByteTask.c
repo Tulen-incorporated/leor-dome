@@ -28,10 +28,6 @@ void newRxByteTask()
   switch (uartState)
   {
   case uartNothingSpecial: // Ничего не случилось еще значимого. Ищем стартовоый маркер.
-    if (CycledBufferDataSize(&rxBuffer) < sizeof(StartMarkerMessage))
-      return; // Маркер еще не мог прийти никак, он просто не вместился бы.
-      // А если он может вместится, проверяем не пришел ли он еще
-
     break;
   case uartStartMarkerAquaired:
     break;
